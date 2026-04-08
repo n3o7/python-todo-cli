@@ -3,19 +3,16 @@ tasks = []
 
 
 def save_tasks():
-    with open("tasks.txt", "w") as file:
-        for task in tasks:
-            file.write(task + "\n")
+    with open("tasks.json", "w") as file:
+        json.dump(tasks, file)
 
 
 def load_tasks():
     try:
-        with open("tasks.txt", "r") as file:
-            for line in file:
-                tasks.append(line.strip())
+        with open("tasks.json", "r") as file:
+            return json.load(file)
     except:
         FileNotFoundError
-    pass
 
 
 def add_task():
@@ -24,7 +21,8 @@ def add_task():
     if not new_task.strip():
         print("You didnt enter a task, sorry")
     else:
-        tasks.append(new_task.strip())
+        task_dict = {"title": new_task, "done": False}
+        tasks.append(task_dict)
         save_tasks()
 
 
@@ -34,8 +32,8 @@ def show_tasks(title):
     else:
         print(title)
         print("=============================================================")
-        for index, task in enumerate(tasks, start=1):
-            print(index, task)
+        for task in tasks:
+            print(task["title"], task["done"])
         print("=============================================================")
 
 
@@ -89,5 +87,5 @@ def show_menu():
             print("=============================================================")
 
 
-load_tasks()
+tasks = load_tasks()
 show_menu()
