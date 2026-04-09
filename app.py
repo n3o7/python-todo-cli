@@ -11,8 +11,8 @@ def load_tasks():
     try:
         with open("tasks.json", "r") as file:
             return json.load(file)
-    except:
-        FileNotFoundError
+    except FileNotFoundError:
+        return []
 
 
 def add_task():
@@ -21,7 +21,7 @@ def add_task():
     if not new_task.strip():
         print("You didnt enter a task, sorry")
     else:
-        task_dict = {"title": new_task, "done": False}
+        task_dict = {"title": new_task.strip(), "done": False}
         tasks.append(task_dict)
         save_tasks()
 
@@ -57,6 +57,24 @@ def remove_task():
         print("\nPlease enter a number \n")
 
 
+def mark_done():
+    if not tasks:
+        print("No tasks yet")
+        return
+    show_tasks("Your current list of tasks")
+    print("Enter the number of task u want to change")
+    try:
+        option = int(input())
+        if option < 1 or option > len(tasks):
+            print("No task with such number")
+            return
+        tasks[option-1]["done"] = not tasks[option-1]["done"]
+        show_tasks("Your changed list of tasks")
+        save_tasks()
+    except ValueError:
+        print("Invalid input")
+
+
 def show_menu():
     while True:
         print("Main Menu")
@@ -64,13 +82,14 @@ def show_menu():
         print("1.Add")
         print("2.Show")
         print("3.Remove")
-        print("4.Exit")
+        print("4.Mark done")
+        print("5.Exit")
         print("=============================================================")
-        print("Choose your option(1-4)")
+        print("Choose your option(1-5)")
         try:
             option = int(input())
-            if option < 1 or option > 4:
-                print("Invalid option. Choose between 1 and 4")
+            if option < 1 or option > 5:
+                print("Invalid option. Choose between 1 and 5")
                 continue
             print("=============================================================")
             if option == 1:
@@ -80,10 +99,12 @@ def show_menu():
             elif option == 3:
                 remove_task()
             elif option == 4:
+                mark_done()
+            elif option == 5:
                 print("GoodBye")
                 break
         except ValueError:
-            print("\nPlease enter a number(1-4)\n")
+            print("\nPlease enter a number(1-5)\n")
             print("=============================================================")
 
 
