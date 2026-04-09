@@ -32,8 +32,12 @@ def show_tasks(title):
     else:
         print(title)
         print("=============================================================")
-        for task in tasks:
-            print(task["title"], task["done"])
+        for index, task in enumerate(tasks, start=1):
+            if task["done"]:
+                status = "[x]"
+            else:
+                status = "[ ]"
+            print(index, status, task["title"])
         print("=============================================================")
 
 
@@ -57,7 +61,27 @@ def remove_task():
         print("\nPlease enter a number \n")
 
 
-def mark_done():
+def edit_task():
+    if not tasks:
+        print("No tasks yet")
+        return
+    show_tasks("Your current list of tasks")
+    print("Enter the number of task u want to change")
+    try:
+        option = int(input())
+        if option < 1 or option > len(tasks):
+            print("No task with such number")
+            return
+        print("Enter a new task name")
+        new_task = input()
+        tasks[option-1]["title"] = new_task
+        save_tasks()
+        show_tasks("Your changed list of tasks")
+    except ValueError:
+        print("Invalid input")
+
+
+def toggle_task_status():
     if not tasks:
         print("No tasks yet")
         return
@@ -69,8 +93,8 @@ def mark_done():
             print("No task with such number")
             return
         tasks[option-1]["done"] = not tasks[option-1]["done"]
-        show_tasks("Your changed list of tasks")
         save_tasks()
+        show_tasks("Your changed list of tasks")
     except ValueError:
         print("Invalid input")
 
@@ -82,14 +106,15 @@ def show_menu():
         print("1.Add")
         print("2.Show")
         print("3.Remove")
-        print("4.Mark done")
-        print("5.Exit")
+        print("4.Edit task")
+        print("5.Mark done")
+        print("6.Exit")
         print("=============================================================")
         print("Choose your option(1-5)")
         try:
             option = int(input())
-            if option < 1 or option > 5:
-                print("Invalid option. Choose between 1 and 5")
+            if option < 1 or option > 6:
+                print("Invalid option. Choose between 1 and 6")
                 continue
             print("=============================================================")
             if option == 1:
@@ -99,12 +124,14 @@ def show_menu():
             elif option == 3:
                 remove_task()
             elif option == 4:
-                mark_done()
+                edit_task()
             elif option == 5:
+                toggle_task_status()
+            elif option == 6:
                 print("GoodBye")
                 break
         except ValueError:
-            print("\nPlease enter a number(1-5)\n")
+            print("\nPlease enter a number(1-6)\n")
             print("=============================================================")
 
 
