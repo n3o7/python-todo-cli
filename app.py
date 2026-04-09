@@ -10,8 +10,21 @@ def save_tasks():
 def load_tasks():
     try:
         with open("tasks.json", "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
+            loaded_tasks = json.load(file)
+            if not isinstance(loaded_tasks, list):
+                return []
+
+            valid_tasks = []
+            for task in loaded_tasks:
+                if (isinstance(task, dict)
+                        and ("title" in task)
+                        and ("done" in task)
+                        and isinstance(task["title"], str)
+                        and isinstance(task["done"], bool)
+                        ):
+                    valid_tasks.append(task)
+            return valid_tasks
+    except (FileNotFoundError, json.JSONDecodeError):
         return []
 
 
@@ -110,7 +123,7 @@ def show_menu():
         print("5.Mark done")
         print("6.Exit")
         print("=============================================================")
-        print("Choose your option(1-5)")
+        print("Choose your option(1-6)")
         try:
             option = int(input())
             if option < 1 or option > 6:
