@@ -7,6 +7,18 @@ def save_tasks():
         json.dump(tasks, file)
 
 
+def is_valid_task(task):
+    return (isinstance(task, dict) and ("title" in task) and ("done" in task) and isinstance(task["title"], str) and isinstance(task["done"], bool))
+
+
+def get_task_by_index(tasks, index):
+    return tasks[index-1]
+
+
+def is_valid_index(tasks, index):
+    return (1 <= index <= len(tasks))
+
+
 def load_tasks():
     try:
         with open("tasks.json", "r") as file:
@@ -14,15 +26,8 @@ def load_tasks():
             if not isinstance(loaded_tasks, list):
                 return []
 
-            valid_tasks = []
-            for task in loaded_tasks:
-                if (isinstance(task, dict)
-                        and ("title" in task)
-                        and ("done" in task)
-                        and isinstance(task["title"], str)
-                        and isinstance(task["done"], bool)
-                        ):
-                    valid_tasks.append(task)
+            valid_tasks = [
+                task for task in loaded_tasks if is_valid_task(task)]
             return valid_tasks
     except (FileNotFoundError, json.JSONDecodeError):
         return []
@@ -34,8 +39,8 @@ def add_task():
     if not new_task.strip():
         print("You didnt enter a task, sorry")
     else:
-        task_dict = {"title": new_task.strip(), "done": False}
-        tasks.append(task_dict)
+        task = {"title": new_task.strip(), "done": False}
+        tasks.append(task)
         save_tasks()
 
 
@@ -44,14 +49,16 @@ def show_tasks(title):
         print("No tasks yet")
     else:
         print(title)
+        formatted_list = format_tasks(tasks)
         print("=============================================================")
-        for index, task in enumerate(tasks, start=1):
-            if task["done"]:
-                status = "[x]"
-            else:
-                status = "[ ]"
-            print(index, status, task["title"])
+        for line in formatted_list:
+            print(line)
         print("=============================================================")
+
+
+def format_tasks(tasks):
+    return [
+        f"{index}.{'[x]' if task['done'] else '[ ]'} {task['title']}" for index, task in enumerate(tasks, start=1)]
 
 
 def remove_task():
@@ -64,7 +71,7 @@ def remove_task():
     try:
         task_number = int(input())
 
-        if task_number < 1 or task_number > len(tasks):
+        if not is_valid_index(tasks, task_number):
             print("Invalid number")
             return
         tasks.pop(task_number - 1)
@@ -82,12 +89,13 @@ def edit_task():
     print("Enter the number of task u want to change")
     try:
         option = int(input())
-        if option < 1 or option > len(tasks):
+        if not is_valid_index(tasks, option):
             print("No task with such number")
             return
         print("Enter a new task name")
         new_task = input()
-        tasks[option-1]["title"] = new_task
+        task = get_task_by_index(tasks, option)
+        task["title"] = new_task.strip()
         save_tasks()
         show_tasks("Your changed list of tasks")
     except ValueError:
@@ -102,10 +110,11 @@ def toggle_task_status():
     print("Enter the number of task u want to change")
     try:
         option = int(input())
-        if option < 1 or option > len(tasks):
+        if not is_valid_index(tasks, option):
             print("No task with such number")
             return
-        tasks[option-1]["done"] = not tasks[option-1]["done"]
+        task = get_task_by_index(tasks, option)
+        task["done"] = not task["done"]
         save_tasks()
         show_tasks("Your changed list of tasks")
     except ValueError:
